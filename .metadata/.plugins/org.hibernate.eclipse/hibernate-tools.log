@@ -1,0 +1,7 @@
+2020-11-19 11:44:10,453 0      [lding workspace] WARN  eServiceProviderRegistryReader  - Both 'org.eclipse.fx.ide.css.ui' and 'org.eclipse.papyrus.infra.gmfdiag.css3.xtext.ui' register a content parser for 'css'
+2020-11-20 13:23:27,824 0      [.JavaReconciler] WARN  eServiceProviderRegistryReader  - Both 'org.eclipse.fx.ide.css.ui' and 'org.eclipse.papyrus.infra.gmfdiag.css3.xtext.ui' register a content parser for 'css'
+2020-11-30 09:41:08,031 0      [.JavaReconciler] WARN  eServiceProviderRegistryReader  - Both 'org.eclipse.fx.ide.css.ui' and 'org.eclipse.papyrus.infra.gmfdiag.css3.xtext.ui' register a content parser for 'css'
+2020-11-30 16:53:30,602 0      [.JavaReconciler] WARN  eServiceProviderRegistryReader  - Both 'org.eclipse.fx.ide.css.ui' and 'org.eclipse.papyrus.infra.gmfdiag.css3.xtext.ui' register a content parser for 'css'
+2020-12-02 09:43:28,580 0      [.JavaReconciler] WARN  eServiceProviderRegistryReader  - Both 'org.eclipse.fx.ide.css.ui' and 'org.eclipse.papyrus.infra.gmfdiag.css3.xtext.ui' register a content parser for 'css'
+2020-12-02 16:49:36,529 0      [.JavaReconciler] WARN  eServiceProviderRegistryReader  - Both 'org.eclipse.fx.ide.css.ui' and 'org.eclipse.papyrus.infra.gmfdiag.css3.xtext.ui' register a content parser for 'css'
+2020-12-22 09:51:44,783 0      [.JavaReconciler] WARN  eServiceProviderRegistryReader  - Both 'org.eclipse.fx.ide.css.ui' and 'org.eclipse.papyrus.infra.gmfdiag.css3.xtext.ui' register a content parser for 'css'

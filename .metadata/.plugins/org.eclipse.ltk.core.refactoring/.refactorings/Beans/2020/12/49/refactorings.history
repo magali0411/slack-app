@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename package &apos;slak.beans&apos; to &apos;slak.services&apos;&#x0D;&#x0A;- Original project: &apos;Beans&apos;&#x0D;&#x0A;- Original element: &apos;Beans/ejbModule/slak.beans&apos;&#x0D;&#x0A;- Renamed element: &apos;Beans/ejbModule/slak.services&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename package &apos;slak.beans&apos;" flags="589830" hierarchical="false" id="org.eclipse.jdt.ui.rename.package" input="/ejbModule&lt;slak.beans" name="slak.services" qualified="false" references="true" stamp="1606926367686" textual="false" version="1.0"/>
+</session>
