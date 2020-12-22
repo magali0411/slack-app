@@ -1,5 +1,7 @@
 package slak.services;
 
+import java.util.logging.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,17 +28,18 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import slak.DAO.ChannelDAO;
-import slak.entities.Message;
-import slak.entities.Channel;
+import slak.DAO.UserDAO;
+import slak.entities.User;
 
 /**
- * Session Bean implementation class Channel
+ * JAX-RS
+ * <p/>
+ * This class produces a RESTful service to read/write the contents of the users
  */
 
-@Path("/channels")
+@Path("/users")
 @RequestScoped
-public class GestionChannel {
+public class GestionUser {
 
 	private static final boolean LOG = true;
 
@@ -55,13 +58,13 @@ public class GestionChannel {
 	
 
 	@Inject
-	private ChannelDAO ChannelDAO;
+	private UserDAO userDao;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Channel> listAllChannels() {
-		List<Channel> all = ChannelDAO.findAllOrderedByName();
-		List<Channel> result = new ArrayList<>();
+	public List<User> listAllUsers() {
+		List<User> all = userDao.findAllOrderedByName();
+		List<User> result = new ArrayList<>();
 		result.addAll(all);
 		return result;
 	}
@@ -69,21 +72,21 @@ public class GestionChannel {
 	@GET
 	@Path("/{id:[0-9][0-9]*}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Channel lookupChannelById(@PathParam("id") int id) {
-		Channel channel = ChannelDAO.findById(id);
-		if (channel == null) {
+	public User lookupUserById(@PathParam("id") int id) {
+		User user = userDao.findById(id);
+		if (user == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-		return channel;
+		return user;
 	}
 
 	@DELETE
 	@Path("/all")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteAllChannels() {
+	public Response deleteAllUsers() {
 		Response.ResponseBuilder builder = null;
 		try {
-			ChannelDAO.deleteAll();
+			userDao.deleteAll();
 			builder = Response.ok();
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
@@ -100,11 +103,11 @@ public class GestionChannel {
 	@DELETE
 	@Path("/{id:[0-9][0-9]*}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteChannelById(@PathParam("id") int id) {
+	public Response deleteUserById(@PathParam("id") int id) {
 		Response.ResponseBuilder builder = null;
-		clog("deleteChannelById =" + id);
+		clog("deleteUserById =" + id);
 		try {
-			ChannelDAO.deleteById(id);
+			userDao.deleteById(id);
 			builder = Response.ok();
 
 		} catch (ConstraintViolationException ce) {
@@ -126,32 +129,32 @@ public class GestionChannel {
 	}
 
 	/**
-	 * Creates a new channel from the values provided. Performs validation, and will
+	 * Creates a new user from the values provided. Performs validation, and will
 	 * return a JAX-RS response with either 200 ok, or with a map of fields, and
 	 * related errors.
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createChannel(Channel channel) {
+	public Response createUser(User user) {
 		Response.ResponseBuilder builder = null;
-		if (channel.getId() != -1) { // FP201213
-			builder = Response.status(400).entity("channel allready exists!\n");
+		if (user.getId() != -1) { // FP201213
+			builder = Response.status(400).entity("user allready exists!\n");
 			return builder.build();
 		}
 		try {
-			channel.setId(null);
-			validateChannel(channel);
-			ChannelDAO.persist(channel);
-			builder = Response.ok().entity(channel);
+			user.setId(null);
+			validateUser(user);
+			userDao.persist(user);
+			builder = Response.ok().entity(user);
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
 			builder = createViolationResponse(ce.getConstraintViolations());
 		} catch (ValidationException e) {
 			// Handle the unique constrain violation
 			Map<String, String> responseObj = new HashMap<String, String>();
-			if (e.toString().contains("Unique Foobar Violation"))
-				responseObj.put("foobar", "Foobar taken");
+			if (e.toString().contains("Unique Email Violation"))
+				responseObj.put("email", "Email taken");
 			else
 				responseObj.put("error", e.toString());
 			builder = Response.status(Response.Status.CONFLICT).entity(responseObj);
@@ -165,23 +168,23 @@ public class GestionChannel {
 	}
 
 	/**
-	 * Updates an existing channel from the values provided. Performs validation, and
+	 * Updates an existing user from the values provided. Performs validation, and
 	 * will return a JAX-RS response with either 200 ok, or with a map of fields,
 	 * and related errors.
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateChannel(Channel channel) { // FP201213
+	public Response updateUser(User user) { // FP201213
 		Response.ResponseBuilder builder = null;
 		try {
-			Channel fchannel = ChannelDAO.findById(channel.getId());
-			if (fchannel == null) {
-				builder = Response.status(409).entity("channel not found!\n");
+			User fuser = userDao.findById(user.getId());
+			if (fuser == null) {
+				builder = Response.status(409).entity("user not found!\n");
 			} else {
-				validateChannel(channel);
-				ChannelDAO.merge(channel);
-				builder = Response.ok().entity(channel);
+				validateUser(user);
+				userDao.merge(user);
+				builder = Response.ok().entity(user);
 			}
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
@@ -189,8 +192,8 @@ public class GestionChannel {
 		} catch (ValidationException e) {
 			// Handle the unique constraint violation
 			Map<String, String> responseObj = new HashMap<String, String>();
-			if (e.toString().contains("Unique Foobar Violation"))
-				responseObj.put("foobar", "Foobar taken");
+			if (e.toString().contains("Unique Email Violation"))
+				responseObj.put("email", "Email taken");
 			else
 				responseObj.put("error", e.toString());
 			builder = Response.status(Response.Status.CONFLICT).entity(responseObj);
@@ -205,49 +208,49 @@ public class GestionChannel {
 
 	/**
 	 * <p>
-	 * Validates the given Channel variable and throws validation exceptions based on
+	 * Validates the given User variable and throws validation exceptions based on
 	 * the type of error. If the error is standard bean validation errors then it
 	 * will throw a ConstraintValidationException with the set of the constraints
 	 * violated.
 	 * </p>
 	 * <p>
-	 * If the error is caused because an existing channel with the same foobar is
+	 * If the error is caused because an existing user with the same email is
 	 * registered it throws a regular validation exception so that it can be
 	 * interpreted separately.
 	 * </p>
 	 * 
-	 * @param channel Channel to be validated
+	 * @param user User to be validated
 	 * @throws ConstraintViolationException If Bean Validation errors exist
-	 * @throws ValidationException          If channel with the same foobar already
+	 * @throws ValidationException          If user with the same email already
 	 *                                      exists
 	 */
-	private void validateChannel(Channel channel) throws ConstraintViolationException, ValidationException {
+	private void validateUser(User user) throws ConstraintViolationException, ValidationException {
 		// Create a bean validator and check for issues.
-		Set<ConstraintViolation<Channel>> violations = validator.validate(channel);
+		Set<ConstraintViolation<User>> violations = validator.validate(user);
 
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
 		}
 
-		// Check the uniqueness of the foobar address
-		if (foobarAlreadyExists(channel)) {
-			throw new ValidationException("Unique Foobar Violation");
+		// Check the uniqueness of the email address
+		if (emailAlreadyExists(user)) {
+			throw new ValidationException("Unique Email Violation");
 		}
 	}
 
 	/**
 	 * 
-	 * @param channel
-	 * @return true if foobar allready exists for another channel
+	 * @param user
+	 * @return true if emails allready exixts for another user
 	 */
-	public boolean foobarAlreadyExists(Channel channel) {
-		Channel fchannel = null;
+	public boolean emailAlreadyExists(User user) {
+		User fuser = null;
 		try {
-			//fchannel = ChannelDAO.findByFoobar(channel.getFoobar());
+			fuser = userDao.findByEmail(user.getEmail());
 		} catch (NoResultException e) {
 			// ignore
 		}
-		return fchannel != null && channel.getId() != fchannel.getId();
+		return fuser != null && user.getId() != fuser.getId();
 	}
 
 	/**

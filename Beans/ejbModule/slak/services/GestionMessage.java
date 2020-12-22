@@ -1,5 +1,6 @@
 package slak.services;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,16 +28,21 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import slak.DAO.ChannelDAO;
+import slak.DAO.MessageDAO;
+import slak.DAO.UserDAO;
 import slak.entities.Message;
-import slak.entities.Channel;
+
+
 
 /**
- * Session Bean implementation class Channel
+ * JAX-RS
+ * <p/>
+ * This class produces a RESTful service to read/write the contents of the messages
  */
 
-@Path("/channels")
+@Path("/messages")
 @RequestScoped
-public class GestionChannel {
+public class GestionMessage {
 
 	private static final boolean LOG = true;
 
@@ -51,17 +57,21 @@ public class GestionChannel {
 	@Inject
 	private Validator validator;
 	
+	@Inject
+	private UserDAO userDao;
 
+	@Inject
+	private ChannelDAO channelDao;
 	
 
 	@Inject
-	private ChannelDAO ChannelDAO;
+	private MessageDAO messageDao;
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Channel> listAllChannels() {
-		List<Channel> all = ChannelDAO.findAllOrderedByName();
-		List<Channel> result = new ArrayList<>();
+	public List<Message> listAllMessages() {
+		List<Message> all = messageDao.findAllOrderedByContent();
+		List<Message> result = new ArrayList<>();
 		result.addAll(all);
 		return result;
 	}
@@ -69,21 +79,33 @@ public class GestionChannel {
 	@GET
 	@Path("/{id:[0-9][0-9]*}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Channel lookupChannelById(@PathParam("id") int id) {
-		Channel channel = ChannelDAO.findById(id);
-		if (channel == null) {
+	public Message lookupMessageById(@PathParam("id") int id) {
+		Message message = messageDao.findById(id);
+		if (message == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-		return channel;
+		return message;
 	}
 
+	@GET
+	@Path("/user/{id:[0-9][0-9]*}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Message> lookupMessagesByUserId(@PathParam("id") int id) {
+		List<Message> messages = messageDao.findByUserId(id);
+		if (messages == null || messages.isEmpty()) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		return messages;
+	}	
+	
+	
 	@DELETE
 	@Path("/all")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteAllChannels() {
+	public Response deleteAllMessages() {
 		Response.ResponseBuilder builder = null;
 		try {
-			ChannelDAO.deleteAll();
+			messageDao.deleteAll();
 			builder = Response.ok();
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
@@ -100,11 +122,11 @@ public class GestionChannel {
 	@DELETE
 	@Path("/{id:[0-9][0-9]*}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteChannelById(@PathParam("id") int id) {
+	public Response deleteMessageById(@PathParam("id") int id) {
 		Response.ResponseBuilder builder = null;
-		clog("deleteChannelById =" + id);
+		clog("deleteMessageById =" + id);
 		try {
-			ChannelDAO.deleteById(id);
+			messageDao.deleteById(id);
 			builder = Response.ok();
 
 		} catch (ConstraintViolationException ce) {
@@ -126,24 +148,24 @@ public class GestionChannel {
 	}
 
 	/**
-	 * Creates a new channel from the values provided. Performs validation, and will
+	 * Creates a new message from the values provided. Performs validation, and will
 	 * return a JAX-RS response with either 200 ok, or with a map of fields, and
 	 * related errors.
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createChannel(Channel channel) {
+	public Response createMessage(Message message) {
 		Response.ResponseBuilder builder = null;
-		if (channel.getId() != -1) { // FP201213
-			builder = Response.status(400).entity("channel allready exists!\n");
+		if (message.getId() != -1) { // FP201213
+			builder = Response.status(400).entity("message allready exists!\n");
 			return builder.build();
 		}
 		try {
-			channel.setId(null);
-			validateChannel(channel);
-			ChannelDAO.persist(channel);
-			builder = Response.ok().entity(channel);
+			message.setId(null);
+			validateMessage(message);
+			messageDao.persist(message);
+			builder = Response.ok().entity(message);
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
 			builder = createViolationResponse(ce.getConstraintViolations());
@@ -165,23 +187,23 @@ public class GestionChannel {
 	}
 
 	/**
-	 * Updates an existing channel from the values provided. Performs validation, and
+	 * Updates an existing message from the values provided. Performs validation, and
 	 * will return a JAX-RS response with either 200 ok, or with a map of fields,
 	 * and related errors.
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateChannel(Channel channel) { // FP201213
+	public Response updateMessage(Message message) { // FP201213
 		Response.ResponseBuilder builder = null;
 		try {
-			Channel fchannel = ChannelDAO.findById(channel.getId());
-			if (fchannel == null) {
-				builder = Response.status(409).entity("channel not found!\n");
+			Message fmessage = messageDao.findById(message.getId());
+			if (fmessage == null) {
+				builder = Response.status(409).entity("message not found!\n");
 			} else {
-				validateChannel(channel);
-				ChannelDAO.merge(channel);
-				builder = Response.ok().entity(channel);
+				validateMessage(message);
+				messageDao.merge(message);
+				builder = Response.ok().entity(message);
 			}
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
@@ -205,49 +227,49 @@ public class GestionChannel {
 
 	/**
 	 * <p>
-	 * Validates the given Channel variable and throws validation exceptions based on
+	 * Validates the given Message variable and throws validation exceptions based on
 	 * the type of error. If the error is standard bean validation errors then it
 	 * will throw a ConstraintValidationException with the set of the constraints
 	 * violated.
 	 * </p>
 	 * <p>
-	 * If the error is caused because an existing channel with the same foobar is
+	 * If the error is caused because an existing message with the same foobar is
 	 * registered it throws a regular validation exception so that it can be
 	 * interpreted separately.
 	 * </p>
 	 * 
-	 * @param channel Channel to be validated
+	 * @param message Message to be validated
 	 * @throws ConstraintViolationException If Bean Validation errors exist
-	 * @throws ValidationException          If channel with the same foobar already
+	 * @throws ValidationException          If message with the same foobar already
 	 *                                      exists
 	 */
-	private void validateChannel(Channel channel) throws ConstraintViolationException, ValidationException {
+	private void validateMessage(Message message) throws ConstraintViolationException, ValidationException {
 		// Create a bean validator and check for issues.
-		Set<ConstraintViolation<Channel>> violations = validator.validate(channel);
+		Set<ConstraintViolation<Message>> violations = validator.validate(message);
 
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
 		}
 
 		// Check the uniqueness of the foobar address
-		if (foobarAlreadyExists(channel)) {
+		if (foobarAlreadyExists(message)) {
 			throw new ValidationException("Unique Foobar Violation");
 		}
 	}
 
 	/**
 	 * 
-	 * @param channel
-	 * @return true if foobar allready exists for another channel
+	 * @param message
+	 * @return true if foobar allready exists for another message
 	 */
-	public boolean foobarAlreadyExists(Channel channel) {
-		Channel fchannel = null;
+	public boolean foobarAlreadyExists(Message message) {
+		Message fmessage = null;
 		try {
-			//fchannel = ChannelDAO.findByFoobar(channel.getFoobar());
+			//fmessage = messageDao.findByFoobar(message.getFoobar());
 		} catch (NoResultException e) {
 			// ignore
 		}
-		return fchannel != null && channel.getId() != fchannel.getId();
+		return fmessage != null && message.getId() != fmessage.getId();
 	}
 
 	/**

@@ -7,7 +7,6 @@
     <fullyQualifiedTypeName name="slak.beans.Channel"/>
     <fullyQualifiedTypeName name="slak.entities.Channel"/>
     <fullyQualifiedTypeName name="slak.entities.Company"/>
-    <fullyQualifiedTypeName name="slak.entities.Invitation"/>
     <fullyQualifiedTypeName name="slak.entities.Message"/>
     <fullyQualifiedTypeName name="javax.inject.Inject"/>
     <fullyQualifiedTypeName name="javax.persistence.EntityManager"/>
@@ -17,4 +16,8 @@
     <fullyQualifiedTypeName name="javax.persistence.criteria.CriteriaBuilder"/>
     <fullyQualifiedTypeName name="javax.persistence.criteria.CriteriaQuery"/>
     <fullyQualifiedTypeName name="javax.persistence.criteria.Root"/>
+    <fullyQualifiedTypeName name="java.util.Date"/>
+    <fullyQualifiedTypeName name="java.sql.Date"/>
+    <fullyQualifiedTypeName name="sun.util.calendar.BaseCalendar.Date"/>
+    <fullyQualifiedTypeName name="slak.entities.Invitation"/>
 </qualifiedTypeNameHistroy>

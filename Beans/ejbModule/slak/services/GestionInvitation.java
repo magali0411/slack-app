@@ -1,6 +1,7 @@
 package slak.services;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,17 +27,22 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import slak.DAO.ChannelDAO;
-import slak.entities.Message;
-import slak.entities.Channel;
+import slak.entities.Invitation;
+import slak.entities.User;
+import slak.DAO.UserDAO;
+import slak.DAO.InvitationDAO;
+
+
 
 /**
- * Session Bean implementation class Channel
+ * JAX-RS
+ * <p/>
+ * This class produces a RESTful service to read/write the contents of the invitations
  */
 
-@Path("/channels")
+@Path("/invitations")
 @RequestScoped
-public class GestionChannel {
+public class GestionInvitation {
 
 	private static final boolean LOG = true;
 
@@ -50,40 +56,70 @@ public class GestionChannel {
 
 	@Inject
 	private Validator validator;
-	
-
-	
+		
 
 	@Inject
-	private ChannelDAO ChannelDAO;
+	private InvitationDAO InvitationDAO;
 
+	@Inject
+	private UserDAO UserDAO;
+
+	
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public List<Channel> listAllChannels() {
-		List<Channel> all = ChannelDAO.findAllOrderedByName();
-		List<Channel> result = new ArrayList<>();
+	public List<Invitation> listAllInvitations() {
+		List<Invitation> all = InvitationDAO.findAllOrderedByMessage();
+		List<Invitation> result = new ArrayList<>();
 		result.addAll(all);
 		return result;
 	}
+	
+
+	
+	@GET
+	@Path("/user/{id:[0-9][0-9]*}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Invitation> lookupInvitationsByUserId(@PathParam("id") int id) {
+		List<Invitation> invitations = InvitationDAO.findByUserId(id);
+		if (invitations == null || invitations.isEmpty()) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		return invitations;
+	}
+	
+	
+	@GET
+	@Path("/foruser/{id:[0-9][0-9]*}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public List<Invitation> lookupInvitationsForUserId(@PathParam("id") int id) {
+		List<Invitation> invitations = InvitationDAO.findForUserId(id);
+		if (invitations == null || invitations.isEmpty()) {
+			throw new WebApplicationException(Response.Status.NOT_FOUND);
+		}
+		return invitations;
+	}
+	
+
 
 	@GET
 	@Path("/{id:[0-9][0-9]*}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Channel lookupChannelById(@PathParam("id") int id) {
-		Channel channel = ChannelDAO.findById(id);
-		if (channel == null) {
+	public Invitation lookupInvitationById(@PathParam("id") int id) {
+		Invitation invitation = InvitationDAO.findById(id);
+		//TODO see invitation.emitter
+		if (invitation == null) {
 			throw new WebApplicationException(Response.Status.NOT_FOUND);
 		}
-		return channel;
+		return invitation;
 	}
 
 	@DELETE
 	@Path("/all")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteAllChannels() {
+	public Response deleteAllInvitations() {
 		Response.ResponseBuilder builder = null;
 		try {
-			ChannelDAO.deleteAll();
+			InvitationDAO.deleteAll();
 			builder = Response.ok();
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
@@ -100,11 +136,11 @@ public class GestionChannel {
 	@DELETE
 	@Path("/{id:[0-9][0-9]*}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response deleteChannelById(@PathParam("id") int id) {
+	public Response deleteInvitationById(@PathParam("id") int id) {
 		Response.ResponseBuilder builder = null;
-		clog("deleteChannelById =" + id);
+		clog("deleteInvitationById =" + id);
 		try {
-			ChannelDAO.deleteById(id);
+			InvitationDAO.deleteById(id);
 			builder = Response.ok();
 
 		} catch (ConstraintViolationException ce) {
@@ -125,25 +161,46 @@ public class GestionChannel {
 		return response;
 	}
 
+	
+	private void updateUsers(Invitation invitation) {
+		try {
+			User emiter = UserDAO.findById(invitation.getEmitter().getId());
+			invitation.setEmitter(emiter);
+		} catch (Exception e) {
+			clog("should not happen 1 in updateUsers");
+		}
+
+		
+		try {
+			User receiver =UserDAO.findById(invitation.getReceiver().getId());
+			invitation.setReceiver(receiver);
+		} catch (Exception e) {
+			clog("should not happen 2 in updateUsers");
+		}		
+	
+	}
+	
+	
 	/**
-	 * Creates a new channel from the values provided. Performs validation, and will
+	 * Creates a new invitation from the values provided. Performs validation, and will
 	 * return a JAX-RS response with either 200 ok, or with a map of fields, and
 	 * related errors.
 	 */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response createChannel(Channel channel) {
+	public Response createInvitation(Invitation invitation) {
 		Response.ResponseBuilder builder = null;
-		if (channel.getId() != -1) { // FP201213
-			builder = Response.status(400).entity("channel allready exists!\n");
+		if (invitation.getId() != -1) { // FP201213
+			builder = Response.status(400).entity("invitation allready exists!\n");
 			return builder.build();
 		}
 		try {
-			channel.setId(null);
-			validateChannel(channel);
-			ChannelDAO.persist(channel);
-			builder = Response.ok().entity(channel);
+			invitation.setId(null);
+			updateUsers(invitation);
+			validateInvitation(invitation);
+			InvitationDAO.persist(invitation);
+			builder = Response.ok().entity(invitation);
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
 			builder = createViolationResponse(ce.getConstraintViolations());
@@ -164,24 +221,37 @@ public class GestionChannel {
 		return builder.build();
 	}
 
+	@PUT
+	@Path("/accept/{id:[0-9][0-9]*}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public Invitation acceptInvitation(@PathParam("id") int id) {
+		Invitation invitation = InvitationDAO.acceptById(id,new Date());
+
+	
+		return invitation;
+	}
+	
+
+	
 	/**
-	 * Updates an existing channel from the values provided. Performs validation, and
+	 * Updates an existing invitation from the values provided. Performs validation, and
 	 * will return a JAX-RS response with either 200 ok, or with a map of fields,
 	 * and related errors.
 	 */
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateChannel(Channel channel) { // FP201213
+	public Response updateInvitation(Invitation invitation) { // FP201213
 		Response.ResponseBuilder builder = null;
 		try {
-			Channel fchannel = ChannelDAO.findById(channel.getId());
-			if (fchannel == null) {
-				builder = Response.status(409).entity("channel not found!\n");
+			Invitation finvitation = InvitationDAO.findById(invitation.getId());
+			if (finvitation == null) {
+				builder = Response.status(409).entity("invitation not found!\n");
 			} else {
-				validateChannel(channel);
-				ChannelDAO.merge(channel);
-				builder = Response.ok().entity(channel);
+				updateUsers(invitation);
+				validateInvitation(invitation);
+				InvitationDAO.merge(invitation);
+				builder = Response.ok().entity(invitation);
 			}
 		} catch (ConstraintViolationException ce) {
 			// Handle bean validation issues
@@ -205,49 +275,49 @@ public class GestionChannel {
 
 	/**
 	 * <p>
-	 * Validates the given Channel variable and throws validation exceptions based on
+	 * Validates the given Invitation variable and throws validation exceptions based on
 	 * the type of error. If the error is standard bean validation errors then it
 	 * will throw a ConstraintValidationException with the set of the constraints
 	 * violated.
 	 * </p>
 	 * <p>
-	 * If the error is caused because an existing channel with the same foobar is
+	 * If the error is caused because an existing invitation with the same foobar is
 	 * registered it throws a regular validation exception so that it can be
 	 * interpreted separately.
 	 * </p>
 	 * 
-	 * @param channel Channel to be validated
+	 * @param invitation Invitation to be validated
 	 * @throws ConstraintViolationException If Bean Validation errors exist
-	 * @throws ValidationException          If channel with the same foobar already
+	 * @throws ValidationException          If invitation with the same foobar already
 	 *                                      exists
 	 */
-	private void validateChannel(Channel channel) throws ConstraintViolationException, ValidationException {
+	private void validateInvitation(Invitation invitation) throws ConstraintViolationException, ValidationException {
 		// Create a bean validator and check for issues.
-		Set<ConstraintViolation<Channel>> violations = validator.validate(channel);
+		Set<ConstraintViolation<Invitation>> violations = validator.validate(invitation);
 
 		if (!violations.isEmpty()) {
 			throw new ConstraintViolationException(new HashSet<ConstraintViolation<?>>(violations));
 		}
 
 		// Check the uniqueness of the foobar address
-		if (foobarAlreadyExists(channel)) {
+		if (foobarAlreadyExists(invitation)) {
 			throw new ValidationException("Unique Foobar Violation");
 		}
 	}
 
 	/**
 	 * 
-	 * @param channel
-	 * @return true if foobar allready exists for another channel
+	 * @param invitation
+	 * @return true if foobar allready exists for another invitation
 	 */
-	public boolean foobarAlreadyExists(Channel channel) {
-		Channel fchannel = null;
+	public boolean foobarAlreadyExists(Invitation invitation) {
+		Invitation finvitation = null;
 		try {
-			//fchannel = ChannelDAO.findByFoobar(channel.getFoobar());
+			//finvitation = InvitationDAO.findByFoobar(invitation.getFoobar());
 		} catch (NoResultException e) {
 			// ignore
 		}
-		return fchannel != null && channel.getId() != fchannel.getId();
+		return finvitation != null && invitation.getId() != finvitation.getId();
 	}
 
 	/**
@@ -268,3 +338,5 @@ public class GestionChannel {
 	}
 
 }
+
+//TODO synchro selectbox

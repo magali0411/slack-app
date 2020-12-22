@@ -6,8 +6,9 @@ import java.io.Serializable;
 import java.lang.Integer;
 import java.lang.String;
 import java.util.Date;
-import javax.persistence.*;
+import java.util.List;
 
+import javax.persistence.*;
 /**
  * Entity implementation class for Entity: User
  *
@@ -17,70 +18,95 @@ import javax.persistence.*;
 public class User implements Serializable {
 
 	   
-	@Id
-	@GeneratedValue
-	private Integer OID;
-	private String name;
-	private String foreName;
-	private Date birthDate;
-	private String email;
-	private String password;
-	@ManyToOne(cascade = REMOVE)
-	private Company company;
-	
-	public Company getCompany() {
-		return company;
-	}
-	public void setCompany(Company company) {
-		this.company = company;
-	}
+	  @Id
+	    @GeneratedValue
+	    private Integer id;
+	    private String name;
+	    private String foreName;
+	    private String email;
+	    private String nickName;
+	    private String password;
+	    private Date birthDate;
+	    
+	    @OneToMany(mappedBy = "emitter", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	    //@JsonIgnore
+	    private List<Message> messages;
+	    @ManyToOne
+	    //@JsonBackReference
+	    @JoinColumn(name = "company_fk")
+	    private Company company;
 
-	private static final long serialVersionUID = 1L;
+	    public void setId(Integer id){
+	       this.id = id;
+	    }
+	    
+	    public Integer getId(){
+	        return id;
+	    }
 
-	public User() {
-		super();
-	}   
-	public Integer getOID() {
-		return this.OID;
-	}
+	    public void setName(String name){
+	       this.name = name;
+	    }
+	    
+	    public String getName(){
+	        return name;
+	    }
 
-	public void setOID(Integer OID) {
-		this.OID = OID;
-	}   
-	public String getName() {
-		return this.name;
-	}
+	    public void setForeName(String foreName){
+	       this.foreName = foreName;
+	    }
+	    
+	    public String getForeName(){
+	        return foreName;
+	    }
 
-	public void setName(String name) {
-		this.name = name;
-	}   
-	public String getForeName() {
-		return this.foreName;
-	}
+	    public void setEmail(String email){
+	       this.email = email;
+	    }
+	    
+	    public String getEmail(){
+	        return email;
+	    }
 
-	public void setForeName(String foreName) {
-		this.foreName = foreName;
-	}   
-	public Date getBirthDate() {
-		return this.birthDate;
-	}
+	    public void setNickName(String nickName){
+	       this.nickName = nickName;
+	    }
+	    
+	    public String getNickName(){
+	        return nickName;
+	    }
 
-	public void setBirthDate(Date birthDate) {
-		this.birthDate = birthDate;
-	}   
-	public String getEmail() {
-		return this.email;
-	}
+	    public void setPassword(String password){
+	       this.password = password;
+	    }
+	    
+	    public String getPassword(){
+	        return password;
+	    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}   
-	public String getPassword() {
-		return this.password;
-	}
+	    public void setBirthDate(Date birthDate){
+	       this.birthDate = birthDate;
+	    }
+	    
+	    public Date getBirthDate(){
+	        return birthDate;
+	    }
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+
+	    public void setMessages(List<Message> messages){
+	       this.messages = messages;
+	    }
+	    
+	    public List<Message> getMessages(){
+	        return messages;
+	    }  
+
+	    public void setCompany(Company company){
+	       this.company = company;
+	    }
+	    
+	    public Company getCompany(){
+	        return company;
+	    }
    
 }

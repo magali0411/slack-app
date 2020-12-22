@@ -15,69 +15,74 @@ import static javax.persistence.CascadeType.REMOVE;
  *
  */
 @Entity
+@NamedQueries(
+{ 
+   @NamedQuery(name = "allInvitations", query = "select a FROM Invitation a where a.emitter.id = :user_id"),
+   @NamedQuery(name = "allInvitationsFor", query = "select a FROM Invitation a where a.receiver.id = :user_id")
+})
+@Table(name="Invitation")
+public class Invitation implements java.io.Serializable{
 
-@Access(FIELD)
-public class Invitation implements Serializable {
+    @Id
+    @GeneratedValue
+    private Integer id;
+    private String message;
+    private Date invitationDate;
+    private Date joinDate;
+    @ManyToOne
+   // @JsonBackReference(value="emitter_b")
+    @JoinColumn(name = "emitter_fk")
+    private User emitter;
+    @ManyToOne
+  //  @JsonBackReference(value="receiver_b")
+    @JoinColumn(name = "receiver_fk")
+    private User receiver;
 
-	   
-	 @Id
-	    @GeneratedValue
-	    private Integer OID;
-	    private String message;
-	    private Date invitationDate;
-	    private Date joinDdate;
-	    @ManyToOne
-	    @JoinColumn(name = "emitter_fk")
-	    private User emitter;
-	    @ManyToOne
-	    @JoinColumn(name = "receiver_fk")
-	    private Channel receiver;
+    public void setId(Integer id){
+       this.id = id;
+    }
+    
+    public Integer getId(){
+        return id;
+    }
 
-	    public void setId(Integer id){
-	       this.OID = id;
-	    }
-	    
-	    public Integer getId(){
-	        return OID;
-	    }
+    public void setMessage(String message){
+       this.message = message;
+    }
+    
+    public String getMessage(){
+        return message;
+    }
 
-	    public void setMessage(String message){
-	       this.message = message;
-	    }
-	    
-	    public String getMessage(){
-	        return message;
-	    }
+    public void setInvitationDate(Date invitationDate){
+       this.invitationDate = invitationDate;
+    }
+    
+    public Date getInvitationDate(){
+        return invitationDate;
+    }
 
-	    public void setInvitationDate(Date invitationDate){
-	       this.invitationDate = invitationDate;
-	    }
-	    
-	    public Date getInvitationDate(){
-	        return invitationDate;
-	    }
+    public void setJoinDate(Date joinDate){
+       this.joinDate = joinDate;
+    }
+    
+    public Date getJoinDate(){
+        return joinDate;
+    }
 
-	    public void setJoinDdate(Date joinDdate){
-	       this.joinDdate = joinDdate;
-	    }
-	    
-	    public Date getJoinDdate(){
-	        return joinDdate;
-	    }
+    public void setEmitter(User emitter){
+       this.emitter = emitter;
+    }
+    
+    public User getEmitter(){
+        return emitter;
+    }
 
-	    public void setEmitter(User emitter){
-	       this.emitter = emitter;
-	    }
-	    
-	    public User getEmitter(){
-	        return emitter;
-	    }
-
-	    public void setReceiver(Channel receiver){
-	       this.receiver = receiver;
-	    }
-	    
-	    public Channel getReceiver(){
-	        return receiver;
-	    }
+    public void setReceiver(User receiver){
+       this.receiver = receiver;
+    }
+    
+    public User getReceiver(){
+        return receiver;
+    }
 }

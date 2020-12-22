@@ -20,58 +20,78 @@ import slak.entities.Company;
 @LocalBean
 public class CompanyDAO {
 
-    @Inject
-    private EntityManager em;
 
-    @Inject
-    private Logger log;
-    
-    
-    public void register(Company company ) {
-        if (company.getName() == null)
-            company.setName("noname");
-        log.info("Registering " + company.getName());
-        em.persist(company);
-    }    
-    
-    public Company findById(Long id) {
-        return em.find(Company.class, id);
-    }
-    
-    public List < Company > findAllOrderedByName() {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery < Company > criteria = cb.createQuery(Company.class);
-        Root < Company > company = criteria.from(Company.class);
-        criteria.select(company).orderBy(cb.asc(company.get("name")));
-        return em.createQuery(criteria).getResultList();
-    }
-    
-    public Company create() {
-        Company  company = new Company();
-        register(company);
-        return company;
-    }    
-    
-    public List < Company > getCompanys() {
-        return findAllOrderedByName();
-    }
+	private static final boolean LOG = true;
 
-    public Company getFirstCompany() {
-        return findAllOrderedByName().get(0);
-    }
+	public void clog(String mesg) {
+		if (LOG)
+			log.info(mesg);
+	}
 
-    public void merge(Company company) {
-        em.merge(company);
-    }
+	@Inject
+	private Logger log;
 
-    public void persist(Company company) {
-        em.persist(company);
-    }
+	@Inject
+	private EntityManager em;
 
-    public void deleteAll() {
-        em.createQuery("DELETE FROM Company a").executeUpdate();
-        em.flush();
-        em.clear();
-    }    
+
+	public void persist(Company company) {
+		em.persist(company);
+	}
+
+	public List<Company> getCompanys() {
+		return findAllOrderedByName();
+	}
+
+	public Company getFirstCompany() {
+		return findAllOrderedByName().get(0);
+	}
+
+	public void merge(Company company) {
+		em.merge(company);
+	}
+
+
+	public void delete(Company company) { // FP201213
+		em.remove(company);
+	}
+
+	public void deleteAll() {
+		em.createQuery("DELETE FROM Company a").executeUpdate();
+		em.flush();
+		em.clear();
+	}
+
+	public Company findById(Integer id) {
+		return em.find(Company.class, id);
+	}
+
+	public Company findByEmail(String email) {
+		Company result = null;
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Company> criteria = cb.createQuery(Company.class);
+		Root<Company> company = criteria.from(Company.class);
+		criteria.select(company).where(cb.equal(company.get("email"), email));
+		try {
+			result = em.createQuery(criteria).getSingleResult();
+		} catch (javax.persistence.NoResultException e) {
+			clog("no result for company findByEmail");
+		}
+		return result;
+	}
+
+	public List<Company> findAllOrderedByName() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Company> criteria = cb.createQuery(Company.class);
+		Root<Company> company = criteria.from(Company.class);
+		criteria.select(company).orderBy(cb.asc(company.get("name")));
+		List<Company> result = em.createQuery(criteria).getResultList();
+		return result;
+	}
+
+	public void deleteById(int id) {
+		Company fcompany = findById(id);
+		delete(fcompany);
+	}
     
 }

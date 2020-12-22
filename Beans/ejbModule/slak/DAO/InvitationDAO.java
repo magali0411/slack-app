@@ -1,9 +1,5 @@
 package slak.DAO;
-
-import javax.ejb.LocalBean;
-import javax.ejb.Stateless;
-
-  
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -17,66 +13,88 @@ import javax.persistence.criteria.Root;
 import slak.entities.Invitation;
 
 
-
-/**
- * Session Bean implementation class InvitationDAO
- */
 @Stateless
-@LocalBean
 public class InvitationDAO {
 
-    @Inject
-    private EntityManager em;
+	private static final boolean LOG = true;
 
-    @Inject
-    private Logger log;
-    
-    
-    public void register(Invitation invitation ) {
-        if (invitation.getMessage() == null)
-            invitation.setMessage("noname");
-        log.info("Registering " + invitation.getMessage());
-        em.persist(invitation);
-    }    
-    
-    public Invitation findById(Long id) {
-        return em.find(Invitation.class, id);
-    }
-    
-    public List < Invitation > findAllOrderedByName() {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery < Invitation > criteria = cb.createQuery(Invitation.class);
-        Root < Invitation > invitation = criteria.from(Invitation.class);
-        criteria.select(invitation).orderBy(cb.asc(invitation.get("name")));
-        return em.createQuery(criteria).getResultList();
-    }
-    
-    public Invitation create() {
-        Invitation  invitation = new Invitation();
-        register(invitation);
-        return invitation;
-    }    
-    
-    public List < Invitation > getInvitations() {
-        return findAllOrderedByName();
-    }
+	public void clog(String mesg) {
+		if (LOG)
+			log.info(mesg);
+	}
 
-    public Invitation getFirstInvitation() {
-        return findAllOrderedByName().get(0);
-    }
+	@Inject
+	private Logger log;
 
-    public void merge(Invitation invitation) {
-        em.merge(invitation);
-    }
+	@Inject
+	private EntityManager em;
 
-    public void persist(Invitation invitation) {
-        em.persist(invitation);
-    }
 
-    public void deleteAll() {
-        em.createQuery("DELETE FROM Invitation a").executeUpdate();
-        em.flush();
-        em.clear();
-    }    
-    
+	public void persist(Invitation invitation) {
+		em.persist(invitation);
+	}
+
+	public List<Invitation> getInvitations() {
+		return findAllOrderedByMessage();
+	}
+
+	public Invitation getFirstInvitation() {
+		return findAllOrderedByMessage().get(0);
+	}
+
+	public void merge(Invitation invitation) {
+		em.merge(invitation);
+	}
+
+
+	public void delete(Invitation invitation) { // FP201213
+		em.remove(invitation);
+	}
+
+	public void deleteAll() {
+		em.createQuery("DELETE FROM Invitation a").executeUpdate();
+		em.flush();
+		em.clear();
+	}
+
+	public Invitation findById(Integer id) {
+		return em.find(Invitation.class, id);
+	}
+
+	public List<Invitation> findAllOrderedByMessage() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Invitation> criteria = cb.createQuery(Invitation.class);
+		Root<Invitation> invitation = criteria.from(Invitation.class);
+		criteria.select(invitation).orderBy(cb.asc(invitation.get("message")));
+		List<Invitation> result = em.createQuery(criteria).getResultList();
+		return result;
+	}
+
+	public void deleteById(int id) {
+		Invitation finvitation = findById(id);
+		delete(finvitation);
+	}
+
+	public List<Invitation>  findByUserId(int user_id) {
+		List <Invitation> result = (List <Invitation>)em.createNamedQuery("allInvitations")
+				.setParameter("user_id", user_id).getResultList();
+		return result;
+	}
+
+	
+	public List<Invitation>  findForUserId(int user_id) {
+		List <Invitation> result = (List <Invitation>)em.createNamedQuery("allInvitationsFor")
+				.setParameter("user_id", user_id).getResultList();
+		return result;
+	}
+
+	public Invitation acceptById(int id, Date date) {
+		Invitation inv=findById(id);
+		inv.setJoinDate(date);
+		em.merge(inv);
+		return inv;
+	}
+
+
+
 }

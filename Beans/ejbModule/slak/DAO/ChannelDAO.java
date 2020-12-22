@@ -13,7 +13,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import slak.entities.Channel;
-import slak.services.UnknownChannel;
 
 
 /**
@@ -23,58 +22,67 @@ import slak.services.UnknownChannel;
 @Stateless
 public class ChannelDAO {
 
-    @Inject
-    private EntityManager em;
+	private static final boolean LOG = true;
 
-    @Inject
-    private Logger log;
-    
-    
-    public void register(Channel channel ) {
-        if (channel.getName() == null)
-            channel.setName("noname");
-        log.info("Registering " + channel.getName());
-        em.persist(channel);
-    }    
-    
-    public Channel findById(Long id) {
-        return em.find(Channel.class, id);
-    }
-    
-    public List < Channel > findAllOrderedByName() {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery < Channel > criteria = cb.createQuery(Channel.class);
-        Root < Channel > channel = criteria.from(Channel.class);
-        criteria.select(channel).orderBy(cb.asc(channel.get("name")));
-        return em.createQuery(criteria).getResultList();
-    }
-    
-    public Channel create() {
-        Channel  channel = new Channel();
-        register(channel);
-        return channel;
-    }    
-    
-    public List < Channel > getChannels() {
-        return findAllOrderedByName();
-    }
+	public void clog(String mesg) {
+		if (LOG)
+			log.info(mesg);
+	}
 
-    public Channel getFirstChannel() {
-        return findAllOrderedByName().get(0);
-    }
+	@Inject
+	private Logger log;
 
-    public void merge(Channel channel) {
-        em.merge(channel);
-    }
+	@Inject
+	private EntityManager em;
 
-    public void persist(Channel channel) {
-        em.persist(channel);
-    }
+	public void persist(Channel channel) {
+		em.persist(channel);
+	}
 
-    public void deleteAll() {
-        em.createQuery("DELETE FROM Channel a").executeUpdate();
-        em.flush();
-        em.clear();
-    }    
+	public List<Channel> getChannels() {
+		return findAllOrderedByName();
+	}
+
+	public Channel getFirstChannel() {
+		return findAllOrderedByName().get(0);
+	}
+
+	public void merge(Channel channel) {
+		em.merge(channel);
+	}
+
+	public void delete(Channel channel) { // FP201213
+		em.remove(channel);
+	}
+
+	public void deleteAll() {
+		em.createQuery("DELETE FROM Channel a").executeUpdate();
+		em.flush();
+		em.clear();
+	}
+
+	public Channel findById(Integer id) {
+		return em.find(Channel.class, id);
+	}
+
+	public List<Channel> findAllOrderedByName() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Channel> criteria = cb.createQuery(Channel.class);
+		Root<Channel> channel = criteria.from(Channel.class);
+		criteria.select(channel).orderBy(cb.asc(channel.get("name")));
+		List<Channel> result = em.createQuery(criteria).getResultList();
+		return result;
+	}
+
+	public void deleteById(int id) {
+		Channel fchannel = findById(id);
+		delete(fchannel);
+	}
+
+	public Channel findByName(String string) {
+		List<Channel> channels = findAllOrderedByName();
+		return channels.get(0);
+	}
+
     
 }

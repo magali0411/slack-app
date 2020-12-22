@@ -13,64 +13,82 @@ import static javax.persistence.InheritanceType.SINGLE_TABLE;
  *
  */
 @Entity
+@NamedQueries(
+{ 
+   @NamedQuery(name = "allMessages", query = "select a FROM Message a where a.emitter.id = :user_id")
+})
+@Table(name="Message")
+public class Message implements java.io.Serializable{
 
-@Inheritance(strategy = SINGLE_TABLE)
-public class Message implements Serializable {
+    @Id
+    @GeneratedValue
+    private Integer id;
+    private int parentId;
+    private String content;
+    private String type;
+    private Date date;
+    @ManyToOne
+    //@JsonBackReference(value="emitter_b")
+    @JoinColumn(name = "emitter_fk")
+    private User emitter;
+    @ManyToOne
+    //@JsonBackReference(value="channel_b")
+    @JoinColumn(name = "channel_fk")
+    private Channel channel;
 
-	
-	private MessageType type;
-	private String content;
-	private Date date;   
-	private User emitter;
-	private Channel channel;
-	
-	@Id
-	@GeneratedValue
-	private Integer OID;
-	private static final long serialVersionUID = 1L;
+    public void setId(Integer id){
+       this.id = id;
+    }
+    
+    public Integer getId(){
+        return id;
+    }
 
-	public Message() {
-		super();
-	}   
-	public MessageType getType() {
-		return this.type;
-	}
+    public void setParentId(int parentId){
+       this.parentId = parentId;
+    }
+    
+    public int getParentId(){
+        return parentId;
+    }
 
-	public void setType(MessageType type) {
-		this.type = type;
-	}   
-	public String getContent() {
-		return this.content;
-	}
+    public void setContent(String content){
+       this.content = content;
+    }
+    
+    public String getContent(){
+        return content;
+    }
 
-	public void setContent(String content) {
-		this.content = content;
-	}   
-	public Date getDate() {
-		return this.date;
-	}
+    public void setType(String type){
+       this.type = type;
+    }
+    
+    public String getType(){
+        return type;
+    }
 
-	public void setDate(Date date) {
-		this.date = date;
-	}   
-	public Integer getOID() {
-		return this.OID;
-	}
+    public void setDate(Date date){
+       this.date = date;
+    }
+    
+    public Date getDate(){
+        return date;
+    }
 
-	public void setOID(Integer OID) {
-		this.OID = OID;
-	}
-	public User getEmitter() {
-		return emitter;
-	}
-	public void setEmitter(User emitter) {
-		this.emitter = emitter;
-	}
-	public Channel getChannel() {
-		return channel;
-	}
-	public void setChannel(Channel channel) {
-		this.channel = channel;
-	}
-   
+    public void setEmitter(User emitter){
+       this.emitter = emitter;
+    }
+    
+    public User getEmitter(){
+        return emitter;
+    }
+
+    public void setChannel(Channel channel){
+       this.channel = channel;
+    }
+    
+    public Channel getChannel(){
+        return channel;
+    }
 }

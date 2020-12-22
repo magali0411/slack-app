@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.lang.Boolean;
 import java.lang.Integer;
 import java.lang.String;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.*;
@@ -18,61 +19,52 @@ import static javax.persistence.CascadeType.REMOVE;
 
 public class Channel implements Serializable {
 	   
-	@Id
-	@GeneratedValue
-	private Integer OID;
-	private String name;
-	private Boolean privateChannel;
-	private String description;
-	private String dateCreation;
-	@OneToMany(fetch = EAGER, cascade = REMOVE)
-	private List<Message> messages;
-	
-	private static final long serialVersionUID = 1L;
+	 @Id
+	 @GeneratedValue
+	 private Integer id;
+	 private String name;
+	 private String description;
+	 private boolean privat;
+	 private Date dateCreation;
 
-	public Channel() {
-		super();
-	}   
-	public Integer getOID() {
-		return this.OID;
-	}
+	 public void setId(Integer id){
+	    this.id = id;
+	 }
+	    
+	 public Integer getId(){
+	     return id;
+	 }
 
-	public void setOID(Integer OID) {
-		this.OID = OID;
-	}   
-	public String getName() {
-		return this.name;
-	}
+	 public void setName(String name){
+	    this.name = name;
+	 }
+	    
+	 public String getName(){
+	     return name;
+	 }
 
-	public void setName(String name) {
-		this.name = name;
-	}   
-	public Boolean getPrivateChannel() {
-		return this.privateChannel;
-	}
+	 public void setDescription(String description){
+	    this.description = description;
+	 }
+	    
+	 public String getDescription(){
+	     return description;
+	 }
 
-	public void setPrivateChannel(Boolean privateChannel) {
-		this.privateChannel = privateChannel;
-	}   
-	public String getDescription() {
-		return this.description;
-	}
+	 public void setPrivat(boolean privat){
+	    this.privat = privat;
+	 }
+	    
+	 public boolean getPrivat(){
+	     return privat;
+	 }
 
-	public void setDescription(String description) {
-		this.description = description;
-	}   
-	public String getDateCreation() {
-		return this.dateCreation;
-	}
-
-	public void setDateCreation(String dateCreation) {
-		this.dateCreation = dateCreation;
-	}
-	public List<Message> getMessages() {
-		return messages;
-	}
-	public void setMessages(List<Message> messages) {
-		this.messages = messages;
-	}
+	 public void setDateCreation(Date dateCreation){
+	    this.dateCreation = dateCreation;
+	 }
+	    
+	 public Date getDateCreation(){
+	     return dateCreation;
+	 }
    
 }

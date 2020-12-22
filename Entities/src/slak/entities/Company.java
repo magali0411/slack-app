@@ -14,35 +14,34 @@ import javax.persistence.*;
 public class Company implements Serializable {
 
 	
-	private String name;
-	private String website;   
-	@Id
-	private Integer OID;
-	private static final long serialVersionUID = 1L;
+	 @Id
+	 @GeneratedValue
+	 private Integer id;
+	 private String name;
+	 private String website;
 
-	public Company() {
-		super();
-	}   
-	public String getName() {
-		return this.name;
-	}
+	 public void setId(Integer id){
+	    this.id = id;
+	 }
+	    
+	 public Integer getId(){
+	    return id;
+	 }
 
-	public void setName(String name) {
-		this.name = name;
-	}   
-	public String getWebsite() {
-		return this.website;
-	}
+	 public void setName(String name){
+	    this.name = name;
+	 }
+	    
+	 public String getName(){
+	     return name;
+	 }
 
-	public void setWebsite(String website) {
-		this.website = website;
-	}   
-	public Integer getOID() {
-		return this.OID;
-	}
-
-	public void setOID(Integer OID) {
-		this.OID = OID;
-	}
+	 public void setWebsite(String website){
+	    this.website = website;
+	 }
+	    
+	 public String getWebsite(){
+	     return website;
+	 }
    
 }

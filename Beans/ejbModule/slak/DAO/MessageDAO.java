@@ -22,58 +22,71 @@ import slak.entities.Message;
 @LocalBean
 public class MessageDAO {
 
-   @Inject
-   private EntityManager em;
 
-   @Inject
-   private Logger log;
-   
-   
-   public void register(Message message ) {
-       if (message.getContent() == null)
-           message.setContent("noname");
-       log.info("Registering " + message.getContent());
-       em.persist(message);
-   }    
-   
-   public Message findById(Integer id) {
-       return em.find(Message.class, id);
-   }
-   
-   public List < Message > findAllOrderedByName() {
-       CriteriaBuilder cb = em.getCriteriaBuilder();
-       CriteriaQuery < Message > criteria = cb.createQuery(Message.class);
-       Root < Message > message = criteria.from(Message.class);
-       criteria.select(message).orderBy(cb.asc(message.get("name")));
-       return em.createQuery(criteria).getResultList();
-   }
-   
-   public Message create() {
-       Message  message = new Message();
-       register(message);
-       return message;
-   }    
-   
-   public List < Message > getMessages() {
-       return findAllOrderedByName();
-   }
+	private static final boolean LOG = true;
 
-   public Message getFirstMessage() {
-       return findAllOrderedByName().get(0);
-   }
+	public void clog(String mesg) {
+		if (LOG)
+			log.info(mesg);
+	}
 
-   public void merge(Message message) {
-       em.merge(message);
-   }
+	@Inject
+	private Logger log;
 
-   public void persist(Message message) {
-       em.persist(message);
-   }
+	@Inject
+	private EntityManager em;
 
-   public void deleteAll() {
-       em.createQuery("DELETE FROM Message a").executeUpdate();
-       em.flush();
-       em.clear();
-   }    
+
+	public void persist(Message message) {
+		em.persist(message);
+	}
+
+	public List<Message> getMessages_() {
+		return findAllOrderedByContent();
+	}
+
+	public Message getFirstMessage_() {
+		return findAllOrderedByContent().get(0);
+	}
+
+	public void merge(Message message) {
+		em.merge(message);
+	}
+
+	public void delete(Message message) { // FP201213
+		em.remove(message);
+	}
+
+	public void deleteAll() {
+		em.createQuery("DELETE FROM Message a").executeUpdate();
+		em.flush();
+		em.clear();
+	}
+
+	public Message findById(Integer id) {
+		return em.find(Message.class, id);
+	}
+
+
+	public List<Message>  findByUserId(int user_id) {
+		List <Message> result = (List <Message>)em.createNamedQuery("allMessages")
+				.setParameter("user_id", user_id).getResultList();
+		return result;
+	}
+
+	public List<Message> findAllOrderedByContent() {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+		CriteriaQuery<Message> criteria = cb.createQuery(Message.class);
+		Root<Message> message = criteria.from(Message.class);
+		criteria.select(message).orderBy(cb.asc(message.get("content")));
+		List<Message> result = em.createQuery(criteria).getResultList();
+		return result;
+	}
+	
+
+	public void deleteById(int id) {
+		Message fmessage = findById(id);
+		delete(fmessage);
+	}
    
 }
