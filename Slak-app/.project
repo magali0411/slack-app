@@ -6,6 +6,7 @@
 		<project>Beans</project>
 		<project>Entities</project>
 		<project>Ressources</project>
+		<project>web</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

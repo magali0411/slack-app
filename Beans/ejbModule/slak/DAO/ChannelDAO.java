@@ -3,7 +3,6 @@ package slak.DAO;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -29,10 +28,9 @@ public class ChannelDAO {
 			log.info(mesg);
 	}
 
-	@Inject
 	private Logger log;
 
-	@Inject
+	@PersistenceContext
 	private EntityManager em;
 
 	public void persist(Channel channel) {

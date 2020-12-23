@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+	content="connect-src * 'unsafe-inline';">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connecthive</title>
+<link rel="stylesheet" href="css/wsclient.css">
+<link rel="stylesheet" href="css/button-w3.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="vendor/other/sticky-footer-navbar.css">
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/other/lodash-2.4.1.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/other/jquery.form.populator.js"></script>
+<script src="js/common.js"></script>
+<script src="js/messages.js"></script>
+<script type="text/template" id="message-template">
+         <% _.each(messages, function(message) { %>
+         <tr>
+             <td><a href="#" onclick="message_find(<%=message.id%>)">E</a></td>
+             <td><a href="#" onclick="message_delete(<%=message.id%>)">D</a></td>
+             <td><%=message.content%></td>
+             <td><a href="rest/messages/<%=message.id%>" rel="external" target="_blank">JSON</a></td>
+         </tr>
+         <% }); %>
+      </script>
+
+<script type="text/javascript">
+         $( document ).ready( function() {
+        	 init_message_page();
+         });
+</script>
+</head>
+<body>
+	<nav id="navbar"
+		class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+	</nav>
+	<div id="d_form" style="position: absolute; top: 65px; left: 25px">
+		<div>
+		    <a href="" id="back_message" >back to ...</a>
+	
+			<form id="message_form">
+				<fieldset>
+					<legend id="legend_message">Messages</legend>
+					<input type="hidden" name="id" id="id" />
+
+					<table>
+						<tbody id="messagelayout">
+							<tr>
+								<td><label for="content">Message:</label></td>
+								<td><input type="text" name="content" id="content"
+									placeholder="Message content" required autofocus /></td>
+								<td><span class="form_err" id="msg_content">aaaa</span></td>
+							</tr>
+						</tbody>
+					</table>
+					<div>
+						<input type="submit" id="add" value="Add" /> 
+						<input type="submit" id="update" value="Modify" />
+						<input type="submit" id="send" value="Send" />
+							
+					</div>
+				</fieldset>
+				<br>
+			</form>
+			<div>
+				<button id="message_refresh_button">Refresh Messages</button>
+				<button id="message_delete_button">Delete all</button>
+				<button id="message_test_button">Test</button>
+			</div>
+		</div>
+		<div>
+			<div class="d_detail">
+				<table>
+					<thead>
+						<tr>
+							<th>Find</th>
+							<th>Delete</th>
+							<th>Message</th>
+							<th>REST URL</th>
+						</tr>
+					</thead>
+					<tbody id="messagetable">
+						<tr>
+							<td>0</td>
+							<td>Message</td>
+							<td><a href="rest/messages/0" target="_blank">JSON</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div>
+				<span id="message_json_label">REST URL for all messages:</span> 
+				<a href="rest/messages" id="message_json_href" target="_blank" rel="external">JSON</a>
+			</div>
+			<div id="messageMsgs"></div>
+		</div>
+	</div>
+	<footer id="footer" class="footer">
+		<div class="container">
+			<span id="footr" class="text-muted">Slak by 2IA Imt Ales</span>
+		</div>
+	</footer>
+</body>
+</html>

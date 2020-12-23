@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+	content="connect-src * 'unsafe-inline';">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connecthive</title>
+<link rel="stylesheet" href="css/wsclient.css">
+<link rel="stylesheet" href="css/button-w3.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="vendor/other/sticky-footer-navbar.css">
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/other/lodash-2.4.1.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/other/jquery.form.populator.js"></script>
+<script src="js/common.js"></script>
+<script src="js/invitations.js"></script>
+<script type="text/template" id="invitation-template">
+         <% _.each(invitations, function(invitation) { %>
+         <tr>
+             <td><a href="#" onclick="invitation_find(<%=invitation.id%>)">E</a></td>
+             <td><a href="#" onclick="invitation_delete(<%=invitation.id%>)">D</a></td>
+             <td><%=invitation.message%></td>
+             <td><a href="rest/invitations/<%=invitation.id%>" rel="external" target="_blank">JSON</a></td>
+         </tr>
+         <% }); %>
+      </script>
+      
+      <script type="text/template" id="invitation-for-template">
+         <% _.each(invitations_for, function(invitation_for) { %>
+         <tr>
+              <td>x</td>
+             <td><a href="#" onclick="invitation_accept(<%=invitation_for.id%>)">do accept</a></td>
+     
+             <td><%=invitation_for.message%></td>
+            
+         </tr>
+         <% }); %>
+      </script>
+      
+
+
+
+
+<script type="text/javascript">
+         $( document ).ready( function() {
+        	 init_invitation_page();
+         });
+</script>
+
+</head>
+<body>
+	<nav id="navbar"
+		class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+	</nav>
+	<div id="d_form" style="position: absolute; top: 65px; left: 25px">
+		<div>
+		    <a href="" id="back_invitation" >back to ...</a>
+			<form id="invitation_form">
+				<fieldset>
+					<legend id="legend_invitation">Invitations</legend>
+					
+					<input type="hidden" name="id" id="id" />
+
+					<table>
+						<tbody id="invitationlayout">
+							<tr>
+								<td><label for="message">Message:</label></td>
+								<td><input type="text" name="message" id="message"
+									placeholder="Message content" required autofocus /></td>
+								<td><span class="form_err" id="msg_message">aaaa</span></td>
+							</tr>
+									<tr>
+								<td><label for="receiver">Send to:</label></td>
+								<td><select name="receiver" id="receiver" data-iconpos="left">
+										<option value="1">User1</option>
+										<option value="2" selected="">User2</option>
+										<option value="3">User3</option>
+								</select></td>
+							</tr>
+				
+						</tbody>
+					</table>
+					<div>
+						<input type="submit" id="add" value="Add" /> <input type="submit"
+							id="update" value="Modify" /> <input type="submit" id="send"
+							value="Send" />
+
+					</div>
+				</fieldset>
+				<br>
+			</form>
+			<div>
+				<button id="invitation_refresh_button">Refresh Invitations</button>
+				<button id="invitation_delete_button">Delete all</button>
+				<button id="invitation_test_button">Test</button>
+			</div>
+		</div>
+		<div>
+			<div class="d_detail">
+			 <h4>Sent Invitations</h4>
+				<table border ="1">
+					<thead>
+						<tr>
+							<th>Find</th>
+							<th>Delete</th>
+							<th>Message</th>
+							<th>REST URL</th>
+						</tr>
+					</thead>
+					<tbody id="invitationtable">
+						<tr>
+							<td>0</td>
+							<td>Message</td>
+							<td><a href="rest/invitations/0" target="_blank">JSON</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div>
+				<span id="invitation_json_label">REST URL for all
+					invitations:</span> <a href="rest/invitations" id="invitation_json_href"
+					target="_blank" rel="external">JSON</a>
+			</div>
+			
+			
+				<div class="d_detail_2">
+				 <h4>Received Invitations</h4>
+				<table border="1">
+					<thead>
+						<tr>
+							<th>X</th>
+							<th>Accept</th>
+					        <th>Message</th>
+						</tr>
+					</thead>
+					<tbody id="invitationfortable">
+						<tr>
+							<td>0</td>
+							<td>Message</td>
+							<td><a href="rest/invitations/0" target="_blank">JSON</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+	
+			
+		
+			<div id="invitationMsgs"></div>
+		</div>
+	</div>
+	<footer id="footer" class="footer">
+		<div class="container">
+			<span id="footr" class="text-muted">Slak by 2IA Imt Al?s</span>
+		</div>
+	</footer>
+</body>
+</html>
+<!-- ok received invitations v0 -->

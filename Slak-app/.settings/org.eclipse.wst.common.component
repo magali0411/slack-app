@@ -1,23 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-        
-    <wb-module deploy-name="Slak-app">
-                
-        <wb-resource deploy-path="/" source-path="/EarContent" tag="defaultRootSource"/>
-                
-        <dependent-module archiveName="Entities.jar" deploy-path="/lib" handle="module:/resource/Entities/Entities">
-                        
-            <dependency-type>uses</dependency-type>
-                    
-        </dependent-module>
-                
-        <dependent-module archiveName="Beans.jar" deploy-path="/" handle="module:/resource/Beans/Beans">
-                        
-            <dependent-object/>
-                        
-            <dependency-type>uses</dependency-type>
-                    
-        </dependent-module>
             
-    </wb-module>
     
+    <wb-module deploy-name="Slak-app">
+                        
+        
+        <wb-resource deploy-path="/" source-path="/EarContent" tag="defaultRootSource"/>
+                        
+        
+        <dependent-module archiveName="Entities.jar" deploy-path="/lib" handle="module:/resource/Entities/Entities">
+                                    
+            
+            <dependency-type>uses</dependency-type>
+                                
+        
+        </dependent-module>
+                        
+        
+        <dependent-module archiveName="Beans.jar" deploy-path="/" handle="module:/resource/Beans/Beans">
+                                    
+            
+            <dependent-object/>
+                                    
+            
+            <dependency-type>uses</dependency-type>
+                                
+        
+        </dependent-module>
+        <dependent-module archiveName="web.war" deploy-path="/" handle="module:/resource/web/web">
+            <dependent-object/>
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+                    
+    
+    </wb-module>
+        
+
 </project-modules>

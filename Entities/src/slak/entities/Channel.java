@@ -16,7 +16,7 @@ import static javax.persistence.CascadeType.REMOVE;
  *
  */
 @Entity
-
+@Table(name="Channel")
 public class Channel implements Serializable {
 	   
 	 @Id

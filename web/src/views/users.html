@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+	content="connect-src * 'unsafe-inline';">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Connecthive</title>
+<link rel="stylesheet" href="css/wsclient.css">
+<link rel="stylesheet" href="css/button-w3.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="vendor/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet" href="vendor/other/sticky-footer-navbar.css">
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/other/lodash-2.4.1.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="vendor/other/jquery.form.populator.js"></script>
+<script src="js/common.js"></script>
+<script src="js/users.js"></script>
+<script type="text/template" id="user-template">
+         <% _.each(users, function(user) { %>
+         <tr>
+             <td>x</td>
+             <td><a href="#" onclick="user_find(<%=user.id%>)">F</a></td>
+             <td><a href="#" onclick="user_delete(<%=user.id%>)">D</a></td>
+             <td><%=user.name%></td>
+             <td><a href="#" onclick="goto_invitations(<%=user.id%>)">invitations</a></td>
+             <td><a href="#" onclick="goto_messages(<%=user.id%>)">messages</a></td>
+             <td><a href="mailto:<%=user.email%>"><%=user.email%></a></td>
+             <td><a href="rest/users/<%=user.id%>" rel="external" target="_blank">JSON</a></td>
+         </tr>
+         <% }); %>
+      </script>
+
+<script type="text/javascript">
+         $( document ).ready( function() {
+        	 init_user_page();
+         });
+</script>
+
+</head>
+<body>
+	<nav id="navbar"
+		class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
+	</nav>
+	<div id="d_form" style="position: absolute; top: 65px; left: 25px">
+		<div>
+			<form id="user_form">
+				<fieldset>
+					<legend>Users</legend>
+					<input type="hidden" name="id" id="id" />
+					<table>
+						<tbody id="userlayout">
+							<tr>
+								<td><label for="name">Name:</label></td>
+								<td><input type="text" name="name" id="name"
+									placeholder="Name" required autofocus /></td>
+								<td><span class="form_err" id="msg_name">aaaa</span></td>
+							</tr>
+							<tr>
+								<td><label for="email">Email:</label></td>
+								<td><input type="email" name="email" id="email"
+									placeholder="Email" required /></td>
+								<td><span class="form_err" id="msg_email">bbb</span></td>
+							</tr>
+						</tbody>
+					</table>
+					<div>
+						<input type="submit" id="add" value="Add" /> 
+						<input type="submit" id="update" value="Update" />
+					</div>
+				</fieldset>
+				<br>
+			</form>
+			<div>
+				<button id="user_refresh_button">Refresh Users</button>
+				<button id="user_delete_button">Delete all</button>
+				<button id="user_populate_button">Populate</button>
+			    <button id="user_invitation_button">Invitations</button>
+			    <button id="user_meessages_button">Messages</button>
+				<br> <label for="range-1">Slider:</label> <input name="range-1"
+					id="range-1" data-highlight="true" min="0" max="100" value="40"
+					type="range" /> <br> 
+				<label for="select-1">Select:</label> 
+				<select
+					name="select-1" id="select-1" data-iconpos="left">
+					<option value="A">A</option>
+					<option value="B">B</option>
+					<option value="C">C</option>
+				</select>
+			</div>
+		</div>
+		<div>
+			<div class="d_detail">
+				<table  border = "1">
+					<thead>
+						<tr>
+							<th>X</th>
+				            <th>Find</th>
+							<th>Delete</th>
+						    <th>Name</th>
+							<th>Invitation</th>
+						    <th>Messages</th>
+							<th>Email</th>
+							<th>REST URL</th>
+						</tr>
+					</thead>
+					<tbody id="usertable">
+						<tr>
+							<td>x</td>
+							<td>0</td>
+							<td>0</td>
+							
+							<td>xx</td>
+							<td>yy</td>
+							<td>John Smith</td>
+							<td><a href="mailto:john.smith@mailinator.com">john.smith@mailinator.com</a></td>
+							<td><a href="rest/users/0" target="_blank">JSON</a></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div>
+				REST URL for all users: <a href="rest/users" target="_blank"
+					rel="external">JSON</a>
+			</div>
+			<div id="userMsgs"></div>
+		</div>
+	</div>
+	<footer id="footer" class="footer">
+		<div class="container">
+			<span id="footr" class="text-muted">Slak by 2IA Imt Alès</span>
+		</div>
+	</footer>
+</body>
+</html>

@@ -192,23 +192,24 @@
  <validation>
   <core validator-id="jboss.cdi.core">
    <linked-resource name="%1;" path="%0"/>
-   <linked-resource name="%3;%4;" path="%2"/>
-   <linked-resource name="%6;%3;" path="%5"/>
-   <linked-resource name="%4;" path="%7"/>
-   <linked-resource name="%3;" path="%8"/>
+   <linked-resource name="%3;%4;%5;" path="%2"/>
+   <linked-resource name="%7;%3;" path="%6"/>
+   <linked-resource name="%5;" path="%8"/>
+   <linked-resource name="%3;" path="%9"/>
   </core>
   <core validator-id="batch-verification"/>
   <el/>
  </validation>
  <aliases>
-  <alias path="/Beans/ejbModule/slak/services/GestionChannel.java" value="%6"/>
+  <alias path="/Beans/ejbModule/slak/services/GestionChannel.java" value="%7"/>
   <alias path="/Beans/ejbModule/slak/services/GestionCompany.java" value="%1"/>
   <alias path="/Beans/ejbModule/slak/services/GestionMessage.java" value="%3"/>
+  <alias path="/Beans/ejbModule/slak/services/GestionUser.java" value="%4"/>
   <alias path="/Beans/ejbModule/slak/DAO/CompanyDAO.java" value="%0"/>
-  <alias path="/Beans/ejbModule/slak/DAO/ChannelDAO.java" value="%5"/>
-  <alias path="/Beans/ejbModule/slak/DAO/InvitationDAO.java" value="%7"/>
-  <alias path="/Beans/ejbModule/slak/DAO/MessageDAO.java" value="%8"/>
-  <alias path="/Beans/ejbModule/slak/services/GestionInvitation.java" value="%4"/>
+  <alias path="/Beans/ejbModule/slak/DAO/ChannelDAO.java" value="%6"/>
+  <alias path="/Beans/ejbModule/slak/DAO/InvitationDAO.java" value="%8"/>
+  <alias path="/Beans/ejbModule/slak/DAO/MessageDAO.java" value="%9"/>
+  <alias path="/Beans/ejbModule/slak/services/GestionInvitation.java" value="%5"/>
   <alias path="/Beans/ejbModule/slak/DAO/UserDAO.java" value="%2"/>
  </aliases>
  <includes/>
